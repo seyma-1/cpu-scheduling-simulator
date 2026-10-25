@@ -1,0 +1,8 @@
+{
+  "name": "cpu-scheduling-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-based CPU scheduling simulator for FCFS, SJF, SRTF and Round Robin",
+  "scripts": { "test": "node tests/scheduling.test.js", "serve": "python3 -m http.server 8000" }
+}

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive CPU scheduling simulator for FCFS, SJF, SRTF and Round Robin.">
+  <title>CPU Scheduling Simulator</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">OPERATING SYSTEMS · INTERACTIVE LAB</p>
+      <h1>CPU Scheduling Simulator</h1>
+      <p class="subtitle">Explore scheduling decisions, timelines and performance metrics.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Scheduling rules</h2>
+        </div>
+      </div>
+      <div class="rules-grid">
+        <article>
+          <h3>FCFS</h3>
+          <p>Runs ready processes in arrival order. A running process is not interrupted.</p>
+        </article>
+        <article>
+          <h3>SJF</h3>
+          <p>When the CPU becomes free, chooses the ready process with the shortest original burst. Non-preemptive.</p>
+        </article>
+        <article>
+          <h3>SRTF</h3>
+          <p>Chooses the shortest remaining time. The running process is preempted only by a strictly shorter remaining time.</p>
+        </article>
+        <article>
+          <h3>Round Robin</h3>
+          <p>Uses a FIFO queue. Arrivals at a quantum boundary join the queue before the unfinished process is re-enqueued.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">01 / WORKLOAD</p>
+          <h2>Processes</h2>
+        </div>
+        <div class="actions">
+          <button id="empty" class="button button-soft">Empty Workload</button>
+          <button id="loadA" class="button button-soft">Load Workload A</button>
+          <button id="loadB" class="button button-soft">Load Workload B</button>
+        </div>
+      </div>
+      <p class="muted">Arrival time must be a non-negative integer. CPU burst must be a positive integer. Process IDs must be unique.</p>
+      <div class="table-wrap">
+        <table id="processInputTable">
+          <thead>
+            <tr>
+              <th>Process ID</th>
+              <th>Arrival time</th>
+              <th>CPU burst</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="processRows"></tbody>
+        </table>
+      </div>
+      <div class="bottom-actions">
+        <button id="addProcess" class="button button-outline">＋ Add process</button>
+        <span id="processCount" class="muted">0 processes</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">02 / POLICY</p>
+          <h2>Scheduling settings</h2>
+        </div>
+      </div>
+      <div class="settings-grid">
+        <label>Algorithm
+          <select id="algorithm">
+            <option value="fcfs">FCFS — First-Come, First-Served</option>
+            <option value="sjf">SJF — Shortest Job First (non-preemptive)</option>
+            <option value="srtf">SRTF — Shortest Remaining Time First</option>
+            <option value="rr">RR — Round Robin</option>
+          </select>
+          <small>&nbsp;</small>
+        </label>
+        <label id="quantumLabel">Round Robin quantum
+          <input id="quantum" type="number" min="1" step="1" value="2">
+          <small>Used only for Round Robin.</small>
+        </label>
+        <div class="run-cell"><button id="runSimulation" class="button button-primary">Run simulation ↗</button></div>
+      </div>
+      <div id="errorBox" class="message error" role="alert" hidden></div>
+      <div id="successBox" class="message success" role="status" hidden></div>
+    </section>
+
+    <section id="results" class="results-section" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">03 / RESULTS</p>
+          <h2 id="resultTitle">Simulation results</h2>
+        </div>
+        <span id="algorithmPill" class="pill"></span>
+      </div>
+
+      <section class="panel panel-inner">
+        <div class="section-heading compact">
+          <div>
+            <h3>Gantt chart</h3>
+            <p class="muted">Intervals use [start, end): the end time is not included.</p>
+          </div>
+        </div>
+
+        <div class="gantt-scroll">
+          <div class="gantt-track">
+            <div id="ganttChart" class="gantt-chart" aria-label="CPU Gantt chart"></div>
+            <div id="timelineTicks" class="timeline-ticks"></div>
+          </div>
+        </div>
+        <div id="scheduleNotes" class="schedule-notes"></div>
+      </section>
+
+      <section class="panel panel-inner">
+        <div class="section-heading compact">
+          <div>
+            <h3>Per-process metrics</h3>
+            <p class="muted">All time values are scheduling time units.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="resultsTable">
+            <thead>
+              <tr>
+                <th>Process</th>
+                <th>Arrival</th>
+                <th>CPU burst</th>
+                <th>First start</th>
+                <th>Completion</th>
+                <th>Turnaround</th>
+                <th>Waiting</th>
+                <th>Response</th>
+              </tr>
+            </thead>
+            <tbody id="resultRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <div class="metric-cards">
+        <article class="metric-card">
+          <span>Average turnaround</span>
+          <strong id="avgTurnaround">—</strong>
+        </article>
+        <article class="metric-card">
+          <span>Average waiting</span>
+          <strong id="avgWaiting">—</strong>
+        </article>
+        <article class="metric-card">
+          <span>Average response</span>
+          <strong id="avgResponse">—</strong>
+        </article>
+      </div>
+      <p class="footnote">This is a scheduling-policy simulator, not a reproduction of Ubuntu's actual scheduler. Context-switch cost is assumed to be zero.</p>
+    </section>
+
+    <footer>CPU Scheduling Simulator · Educational use · No backend or account required</footer>
+  </main>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
